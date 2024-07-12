@@ -7,7 +7,7 @@ import time
 bot_token = os.getenv('BOT_TOKEN')
 
 # List of chat_ids (replace with your actual chat IDs)
-chat_ids = ['1311416362']
+chat_ids = ['1311416362']  # Replace with your actual chat IDs
 
 # List of msiaf IDs
 msiaf = [821080481, 821080696, 821080725, 821080716, 821080713, 821080823]
@@ -65,6 +65,7 @@ def get_updates(offset=None):
 
 # Function to process updates
 def process_updates(updates):
+    update_id = None
     for update in updates['result']:
         if 'message' in update and 'text' in update['message']:
             text = update['message']['text']
@@ -77,7 +78,8 @@ def process_updates(updates):
                     send_telegram_message(chat_id, "Please provide a valid /run command.")
             elif text.lower() == '/msiaf':
                 handle_command(chat_id, 'msiaf')
-        return update['update_id']
+            update_id = update['update_id']
+    return update_id
 
 # Function to get the number of rows in the last table for a specific user ID
 def get_last_table_row_count(user_id):
@@ -114,6 +116,12 @@ def main():
                 handle_command(chat_id, 'msiaf')
 
         time.sleep(300)  # Wait for 5 minutes
+
+        # Poll for manual updates
+        offset = None
+        updates = get_updates(offset)
+        if 'result' in updates and updates['result']:
+            offset = process_updates(updates) + 1
 
 if __name__ == '__main__':
     main()
