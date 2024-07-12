@@ -6,6 +6,9 @@ import time
 # Read the Telegram bot token from environment variables
 bot_token = os.getenv('BOT_TOKEN')
 
+# List of chat_ids (replace with your actual chat IDs)
+chat_ids = ['1311416362']
+
 # List of msiaf IDs
 msiaf = [821080481, 821080696, 821080725, 821080716, 821080713, 821080823]
 
@@ -106,10 +109,10 @@ def main():
             with open(row_count_file, 'w') as file:
                 file.write(str(current_row_count))
 
-            # Trigger msiaf command
-            for chat_id in msiaf:
+            # Trigger msiaf command for each chat_id
+            for chat_id in chat_ids:
                 handle_command(chat_id, 'msiaf')
-        
+
         time.sleep(300)  # Wait for 5 minutes
 
 if __name__ == '__main__':
