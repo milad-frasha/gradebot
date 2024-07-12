@@ -107,5 +107,5 @@ def main():
         
         time.sleep(300)  # Wait for 5 minutes
 
-if name == 'main':
+if __name__ == '__main__':
     main()
