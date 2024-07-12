@@ -43,6 +43,11 @@ def scrape_user_data(chat_id, user_id):
 # Function to handle commands
 def handle_command(chat_id, command):
     if command.lower() == 'msiaf':
+        # Send the row count in the last table of the specified URL
+        row_count = get_last_table_row_count(msiaf[-1])
+        send_telegram_message(chat_id, f"The last table in the site has {row_count} rows.")
+        
+        # Scrape data for each msiaf ID
         for friend_id in msiaf:
             scrape_user_data(chat_id, friend_id)
     else:
@@ -77,6 +82,19 @@ def process_updates(updates):
             elif text.lower() == '/msiaf':
                 handle_command(chat_id, 'msiaf')
         return update['update_id']
+
+# Function to get the number of rows in the last table for a specific user ID
+def get_last_table_row_count(user_id):
+    url = f"http://app.hama-univ.edu.sy/StdMark/Student/{user_id}?college=1"
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.content, 'html.parser')
+    tables = soup.find_all('table')
+    last_table = tables[-1] if tables else None
+
+    if last_table:
+        return len(last_table.find_all('tr'))
+    return 0
 
 # Main function to poll for updates
 def main():
