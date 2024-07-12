@@ -1,12 +1,16 @@
 import os
 import requests
 from bs4 import BeautifulSoup
+import time
 
 # Read the Telegram bot token from environment variables
 bot_token = os.getenv('BOT_TOKEN')
 
 # List of msiaf IDs
 msiaf = [821080481, 821080696, 821080725, 821080716, 821080713, 821080823]
+
+# Path to the file storing the last row count
+row_count_file = 'last_row_count.txt'
 
 # Function to send message to Telegram
 def send_telegram_message(chat_id, message):
@@ -43,13 +47,13 @@ def scrape_user_data(chat_id, user_id):
 # Function to handle commands
 def handle_command(chat_id, command):
     if command.lower() == 'msiaf':
-        # Send the row count in the last table of the specified URL
-        row_count = get_last_table_row_count(msiaf[-1])
-        send_telegram_message(chat_id, f"The last table in the site has {row_count} rows.")
-        
-        # Scrape data for each msiaf ID
         for friend_id in msiaf:
             scrape_user_data(chat_id, friend_id)
+        # Send the row count in the last table of the specified URL and update the file
+        row_count = get_last_table_row_count(msiaf[-1])
+        send_telegram_message(chat_id, f"Current row count in the last table: {row_count}")
+        with open(row_count_file, 'w') as file:
+            file.write(str(row_count))
     else:
         try:
             user_id = int(command)
