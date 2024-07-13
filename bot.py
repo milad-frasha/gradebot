@@ -108,7 +108,7 @@ def main():
     else:
         last_row_count = 0
 
-    chat_id = 'YOUR_CHAT_ID'  # Replace with your actual chat ID
+    chat_id = '1311416362'  # Replace with your actual chat ID
 
     # Polling for updates every 5 minutes
     while True:
