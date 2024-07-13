@@ -5,7 +5,7 @@ import time
 
 # Read the Telegram bot token from environment variables
 bot_token = os.getenv('BOT_TOKEN')
-chat_id = 'your_chat_id_here'  # Replace with your actual chat ID
+chat_id = '1311416362'  # Replace with your actual chat ID
 
 # List of msiaf IDs
 msiaf = [821080481, 821080696, 821080725, 821080716, 821080713, 821080823]
