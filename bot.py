@@ -3,9 +3,9 @@ import requests
 from bs4 import BeautifulSoup
 import time
 
-# Read the Telegram bot token and chat ID from environment variables
+# Read the Telegram bot token from environment variables
 bot_token = os.getenv('BOT_TOKEN')
-chat_id = os.getenv('CHAT_ID')
+chat_id = 'your_chat_id_here'  # Replace with your actual chat ID
 
 # List of msiaf IDs
 msiaf = [821080481, 821080696, 821080725, 821080716, 821080713, 821080823]
