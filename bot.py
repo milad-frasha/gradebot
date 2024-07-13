@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 
-# Read the Telegram bot token from environment variables
+# Readd the Telegram bot token from environment variables
 bot_token = os.getenv('BOT_TOKEN')
 
 # List of msiaf IDs
