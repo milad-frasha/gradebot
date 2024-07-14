@@ -26,7 +26,12 @@ def scrape_user_data(chat_id, user_id):
     response.raise_for_status()
     soup = BeautifulSoup(response.content, 'html.parser')
 
-    additional_info = soup.find('span', class_="bottom").text.strip()
+    additional_info_tag = soup.find('span', class_="bottom")
+    if not additional_info_tag:
+        send_telegram_message(chat_id, f"No student information found for user {user_id}.")
+        return
+    
+    additional_info = additional_info_tag.text.strip()
     tables = soup.find_all('table')
     last_table = tables[-1] if tables else None
 
