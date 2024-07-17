@@ -1,14 +1,23 @@
 import os
-import telebot
 import requests
+import telebot
 from bs4 import BeautifulSoup
+from tabulate import tabulate
+import threading
+import time
 
 # Read the Telegram bot token from environment variables
 bot_token = os.getenv('BOT_TOKEN')
 bot = telebot.TeleBot(bot_token)
 
+# Chat ID to send notifications to
+notification_chat_id = 1311416362
+
 # List of msiaf IDs
 msiaf = [821080481, 821080696, 821080725, 821080716, 821080713, 821080823]
+
+# Initialize the grade count variable
+grade_count = 0
 
 # Function to scrape data for a specific user ID
 def scrape_user_data(user_id):
@@ -35,6 +44,23 @@ def scrape_user_data(user_id):
     else:
         return f"No tables found on the page for user {user_id}."
 
+# Function to scrape grades and return the count and data
+def scrape_grades():
+    url = f"http://app.hama-univ.edu.sy/StdMark/Student/{msiaf[0]}?college=1"
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    grades_data = []
+    for tr in soup.find_all('tr', class_='bg-light'):
+        td_elements = tr.find_all('td')
+        subject_name = td_elements[0].get_text(strip=True)
+        grade = td_elements[2].get_text(strip=True)
+        term = td_elements[1].get_text(strip=True)
+        grades_data.append((subject_name, grade, term))
+
+    return len(grades_data), grades_data
+
 # Command handler for /run and /msiaf commands
 @bot.message_handler(commands=['run'])
 def handle_run_command(message):
@@ -59,5 +85,27 @@ def handle_msiaf_command(message):
         response_message = scrape_user_data(friend_id)
         bot.send_message(message.chat.id, response_message)
 
-# Start polling for updates
-bot.polling()
+# Background function to check for new grades periodically
+def check_for_new_grades():
+    global grade_count
+    while True:
+        current_grade_count, _ = scrape_grades()
+        if current_grade_count > grade_count:
+            bot.send_message(notification_chat_id, "New grade")
+            grade_count = current_grade_count
+        time.sleep(2 * 60)  # Check every 2 minutes
+
+# Function to start bot polling
+def bot_polling():
+    bot.polling()
+
+# Start bot polling in a separate thread
+bot_thread = threading.Thread(target=bot_polling)
+bot_thread.start()
+
+# Initialize grade count on startup
+grade_count, _ = scrape_grades()
+
+# Start the background grade checking
+check_thread = threading.Thread(target=check_for_new_grades)
+check_thread.start()
