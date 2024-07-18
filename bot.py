@@ -2,7 +2,6 @@ import os
 import requests
 import telebot
 from bs4 import BeautifulSoup
-from tabulate import tabulate
 import threading
 import time
 
@@ -10,8 +9,9 @@ import time
 bot_token = os.getenv('BOT_TOKEN')
 bot = telebot.TeleBot(bot_token)
 
-# Chat ID to send notifications to
+# Chat IDs to send notifications to
 notification_chat_id = 1311416362
+group_chat_id = -1002160075956
 
 # List of msiaf IDs
 msiaf = [821080481, 821080696, 821080725, 821080716, 821080713, 821080823]
@@ -85,13 +85,20 @@ def handle_msiaf_command(message):
         response_message = scrape_user_data(friend_id)
         bot.send_message(message.chat.id, response_message)
 
+# Function to handle msiaf notifications
+def notify_msiaf():
+    for friend_id in msiaf:
+        response_message = scrape_user_data(friend_id)
+        bot.send_message(notification_chat_id, response_message)
+        bot.send_message(group_chat_id, response_message)
+
 # Background function to check for new grades periodically
 def check_for_new_grades():
     global grade_count
     while True:
         current_grade_count, _ = scrape_grades()
         if current_grade_count > grade_count:
-            bot.send_message(notification_chat_id, "New grade")
+            notify_msiaf()  # Trigger msiaf command in both chats
             grade_count = current_grade_count
         time.sleep(2 * 60)  # Check every 2 minutes
 
